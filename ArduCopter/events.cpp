@@ -68,8 +68,11 @@ void Copter::failsafe_radio_on_event()
     } else {
         gcs().send_text(MAV_SEVERITY_WARNING, "Radio Failsafe");
     }
-
+	
     // Call the failsafe action handler
+	sprayer.run(false);
+	gcs().send_text(MAV_SEVERITY_INFO, "Sprayer stop by Failsafe");
+	copter.mission_save_wp();
     do_failsafe_action(desired_action, ModeReason::RADIO_FAILSAFE);
 }
 
@@ -80,6 +83,8 @@ void Copter::failsafe_radio_off_event()
     // user can now override roll, pitch, yaw and throttle and even use flight mode switch to restore previous flight mode
     AP::logger().Write_Error(LogErrorSubsystem::FAILSAFE_RADIO, LogErrorCode::FAILSAFE_RESOLVED);
     gcs().send_text(MAV_SEVERITY_WARNING, "Radio Failsafe Cleared");
+	gcs().send_text(MAV_SEVERITY_INFO, "Sprayer is normal");
+	sprayer.run(true);
 }
 
 void Copter::handle_battery_failsafe(const char *type_str, const int8_t action)
@@ -104,6 +109,9 @@ void Copter::handle_battery_failsafe(const char *type_str, const int8_t action)
     }
 
     // Battery FS options already use the Failsafe_Options enum. So use them directly.
+	sprayer.run(false);
+	gcs().send_text(MAV_SEVERITY_INFO, "Sprayer stop by Failsafe");
+	copter.mission_save_wp();
     do_failsafe_action(desired_action, ModeReason::BATTERY_FAILSAFE);
 
 }
@@ -383,5 +391,75 @@ void Copter::do_failsafe_action(Failsafe_Action action, ModeReason reason){
             arming.disarm();
 #endif
     }
+}
+
+void Copter::failsafe_sprayer_check(int8_t &count_fail_sprayer)
+{
+    if(g.failsafe_sprayer==0)
+    {
+		return;
+	}
+    //uint8_t failsafe_sprayer_status = hal.gpio->read(54); // Read Signal in Pin[55] <=> AUX 5
+	if(sprayer.empty())
+    {
+		count_fail_sprayer +=1;
+	}else{
+		count_fail_sprayer =0;
+		return;
+	}	
+	if(count_fail_sprayer==3)
+	{	
+		if(control_mode == Mode::Number::AUTO)
+		{
+			gcs().send_text(MAV_SEVERITY_WARNING, "Failsafe Sprayer: Out of Liquid!");				
+			copter.mission_save_wp();
+			set_mode_RTL_or_land_with_pause(ModeReason::FAILSAFE_SPRAYER);				
+			sprayer.run(false);
+		}	
+	}
+}
+
+void Copter::mission_save_wp()
+{
+	// Add new Waypoint to Mission 
+	// Create new mission command
+	AP_Mission::Mission_Command cmd  = {};
+	uint16_t index = mode_auto.mission.get_prev_nav_cmd_with_wp_index();
+	// Set new waypoint to current location
+	cmd.content.location = current_loc;
+	cmd.id = MAV_CMD_NAV_WAYPOINT;
+	// Save command
+	if (mode_auto.mission.replace_cmd(index, cmd)) 
+	{
+		// Log event
+		Log_Write_Event(DATA_SAVEWP_ADD_WP);
+		gcs().send_text(MAV_SEVERITY_INFO, "Failsafe point saved!");
+	}
+}
+
+void Copter::mission_trop_wp()
+{
+	
+	if(g.mission_sprayer==1)
+	{	
+		if((motors->armed())&(control_mode == Mode::Number::AUTO))
+		{	
+			uint16_t prev_cmd_id = mode_auto.mission.get_prev_nav_cmd_id();
+			uint16_t prev_cmd_index = mode_auto.mission.get_prev_nav_cmd_index();
+			if (prev_cmd_id == MAV_CMD_NAV_WAYPOINT) 
+			{
+				// Add new Waypoint to Mission 
+				// Create new mission command
+				AP_Mission::Mission_Command cmd  = {};
+				// Set new waypoint to current location
+				cmd.id = MAV_CMD_DO_SET_CAM_TRIGG_DIST;
+				// Save command
+				mode_auto.mission.replace_cmd(prev_cmd_index, cmd);
+			}
+		}else{
+			return;
+		}
+	}
+	
 }
 

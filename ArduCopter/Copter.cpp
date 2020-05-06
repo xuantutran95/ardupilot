@@ -223,6 +223,9 @@ void Copter::setup()
 
     // initialise the main loop scheduler
     scheduler.init(&scheduler_tasks[0], ARRAY_SIZE(scheduler_tasks), MASK_LOG_PM);
+	
+	// Define Pin 54 <=> AUX 5 as Input
+	hal.gpio->pinMode(54, HAL_GPIO_INPUT);
 }
 
 void Copter::loop()
@@ -423,6 +426,8 @@ void Copter::three_hz_loop()
 
     // check if we've lost terrain data
     failsafe_terrain_check();
+	// trop all WP that copter has reached
+	mission_trop_wp();
 
 #if AC_FENCE == ENABLED
     // check if we have breached a fence
@@ -450,8 +455,7 @@ void Copter::one_hz_loop()
         update_using_interlock();
 
         // check the user hasn't updated the frame class or type
-        motors->set_frame_class_and_type((AP_Motors::motor_frame_class)g2.frame_class.get(), (AP_Motors::motor_frame_type)g.frame_type.get());
-
+        motors->set_frame_class_and_type((AP_Motors::motor_frame_class)g2.frame_class.get(), (AP_Motors::motor_frame_type)g.frame_type.get());		
 #if FRAME_CONFIG != HELI_FRAME
         // set all throttle channel settings
         motors->set_throttle_range(channel_throttle->get_radio_min(), channel_throttle->get_radio_max());
@@ -460,7 +464,8 @@ void Copter::one_hz_loop()
 
     // update assigned functions and enable auxiliary servos
     SRV_Channels::enable_aux_servos();
-
+	// NOBA failsafe sprayer
+	failsafe_sprayer_check(count_failsafe_sprayer);
     // log terrain data
     terrain_logging();
 

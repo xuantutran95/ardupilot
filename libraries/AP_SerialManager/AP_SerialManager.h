@@ -123,6 +123,7 @@ public:
         SerialProtocol_WindVane = 21,
         SerialProtocol_SLCAN = 22,
         SerialProtocol_RCIN = 23,
+		SerialProtocol_Nanoradar_NRA24      = 24, // Ulanding support - deprecated, users should use Rangefinder
     };
 
     // get singleton instance

@@ -40,7 +40,7 @@
 #include "AP_RangeFinder_BLPing.h"
 #include "AP_RangeFinder_UAVCAN.h"
 #include "AP_RangeFinder_Lanbao.h"
-
+#include "AP_RangeFinder_NRA24.h"
 #include <AP_BoardConfig/AP_BoardConfig.h>
 #include <AP_Logger/AP_Logger.h>
 #include <AP_SerialManager/AP_SerialManager.h>
@@ -412,6 +412,11 @@ void RangeFinder::detect_instance(uint8_t instance, uint8_t& serial_instance)
             drivers[instance] = new AP_RangeFinder_LightWareSerial(state[instance], params[instance], serial_instance++);
         }
         break;
+	case RangeFinder_TYPE_NRA24:
+        if (AP_RangeFinder_NRA24::detect(serial_instance)) {
+            drivers[instance] = new AP_RangeFinder_NRA24(state[instance], params[instance], serial_instance++);
+        }
+        break;	
     case RangeFinder_TYPE_LEDDARONE:
         if (AP_RangeFinder_LeddarOne::detect(serial_instance)) {
             drivers[instance] = new AP_RangeFinder_LeddarOne(state[instance], params[instance], serial_instance++);

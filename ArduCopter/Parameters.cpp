@@ -103,6 +103,18 @@ const AP_Param::Info Copter::var_info[] = {
     // @Values: 0:None,1:Roll,2:Pitch,4:Yaw,8:AccelZ
     // @Bitmask: 0:Roll,1:Pitch,2:Yaw,3:AccelZ
     GSCALAR(gcs_pid_mask,           "GCS_PID_MASK",     0),
+	// @Param: FAILSAFE_SPRAYER
+	// @DisplayName: Failsafe Sprayer
+	// @Description: Checking out of liquid in spray mode
+	// @Values: 0:Disable, 1:Enable
+	// @User: Advanced
+	GSCALAR(failsafe_sprayer, "FAILSAFE_SPRAYER",   FAILSAFE_SPRAYER_DEFAULT),
+	// @Param: MISSION_SPRAYER
+	// @DisplayName: Mission sprayer
+	// @Description: Hold the sprayer until copter reaches the Waypoint
+	// @Values: 0:Disable, 1:Enable
+	// @User: Advanced
+	GSCALAR(mission_sprayer, "MISSION_SPRAYER",   MISSION_SPRAYER_DEFAULT),
 
 #if MODE_RTL_ENABLED == ENABLED
     // @Param: RTL_ALT

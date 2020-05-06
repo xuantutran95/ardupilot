@@ -38,7 +38,9 @@ public:
     static AC_Sprayer *get_singleton();
     static AC_Sprayer *_singleton;
 
-    /// run - allow or disallow spraying to occur
+    /// new failsafe check for pump
+	bool empty() const { return _flags.failsafe; }
+	/// run - allow or disallow spraying to occur
     void run(bool true_false);
 
     /// running - returns true if spraying is currently permitted
@@ -57,6 +59,8 @@ public:
 
     /// update - adjusts servo positions based on speed and requested quantity
     void update();
+	/// Liquid check for failsafe
+	void liquid_check();
 
     static const struct AP_Param::GroupInfo var_info[];
 
@@ -74,12 +78,13 @@ private:
         uint8_t spraying    : 1;            ///< 1 if we are currently spraying
         uint8_t testing     : 1;            ///< 1 if we are testing the sprayer and should output a minimum value
         uint8_t running     : 1;            ///< 1 if we are permitted to run sprayer
+		uint8_t	failsafe	: 1;			///< 1 if the tank is empty	
     } _flags;
 
     // internal variables
     uint32_t        _speed_over_min_time;   ///< time at which we reached speed minimum
     uint32_t        _speed_under_min_time;  ///< time at which we fell below speed minimum
-
+	bool			_is_safe = true;
     void stop_spraying();
 };
 

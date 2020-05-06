@@ -743,7 +743,9 @@ private:
     void set_mode_SmartRTL_or_land_with_pause(ModeReason reason);
     bool should_disarm_on_failsafe();
     void do_failsafe_action(Failsafe_Action action, ModeReason reason);
-
+	void failsafe_sprayer_check(int8_t &count_fail_sprayer);
+	void mission_save_wp();
+	void mission_trop_wp();
     // failsafe.cpp
     void failsafe_enable();
     void failsafe_disable();
@@ -1004,6 +1006,7 @@ private:
 public:
     void mavlink_delay_cb();    // GCS_Mavlink.cpp
     void failsafe_check();      // failsafe.cpp
+	int8_t count_failsafe_sprayer = 0;
 };
 
 extern Copter copter;

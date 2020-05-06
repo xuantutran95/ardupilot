@@ -221,7 +221,8 @@ public:
         k_param_takeoff_trigger_dz_old,
         k_param_gcs3,
         k_param_gcs_pid_mask,    // 126
-
+		k_param_failsafe_sprayer, //127: NOBA parameter for resume mission after failsafe mode
+		k_param_mission_sprayer, //128: NOBA parameter for resume mission after failsafe mode
         //
         // 135 : reserved for Solo until features merged with master
         //
@@ -379,6 +380,9 @@ public:
 
     AP_Int16        format_version;
 
+	// Declare NOBA Parameter.
+	AP_Int8			failsafe_sprayer;
+	AP_Int8 		mission_sprayer;
     // Telemetry control
     //
     AP_Int16        sysid_this_mav;

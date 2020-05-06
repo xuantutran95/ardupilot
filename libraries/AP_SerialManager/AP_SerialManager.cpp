@@ -427,6 +427,9 @@ void AP_SerialManager::init()
                 case SerialProtocol_Aerotenna_uLanding:
                     state[i].protocol.set_and_save(SerialProtocol_Rangefinder);
                     break;
+				case SerialProtocol_Nanoradar_NRA24:
+                    state[i].protocol.set_and_save(SerialProtocol_Rangefinder);
+                    break;	
                 case SerialProtocol_Volz:
                                     // Note baudrate is hardcoded to 115200
                                     state[i].baud = AP_SERIALMANAGER_VOLZ_BAUD;   // update baud param in case user looks at it

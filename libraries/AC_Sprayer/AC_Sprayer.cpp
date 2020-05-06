@@ -93,14 +93,25 @@ void AC_Sprayer::run(const bool true_false)
 
     // set flag indicate whether spraying is permitted:
     // do not allow running to be set to true if we are currently not enabled
-    _flags.running = true_false && _enabled;
+    _flags.running = true_false && _enabled && _is_safe;
 
     // turn off the pump and spinner servos if necessary
     if (!_flags.running) {
         stop_spraying();
     }
 }
-
+void AC_Sprayer::liquid_check()
+{
+	//Use with Liquid level sensor
+	uint8_t liquid_sensor = hal.gpio->read(54); // Read Signal in Pin[55] <=> AUX 5
+	if(liquid_sensor == 0){
+		_is_safe = false;
+		_flags.failsafe = true;
+	}else{
+		_is_safe = true;
+		_flags.failsafe = false;
+	}
+}
 void AC_Sprayer::stop_spraying()
 {
     SRV_Channels::set_output_limit(SRV_Channel::k_sprayer_pump, SRV_Channel::SRV_CHANNEL_LIMIT_MIN);

@@ -792,3 +792,12 @@
 #ifndef HAL_FRAME_TYPE_DEFAULT
 #define HAL_FRAME_TYPE_DEFAULT AP_Motors::MOTOR_FRAME_TYPE_X
 #endif
+
+#ifndef FAILSAFE_SPRAYER_DEFAULT
+ # define FAILSAFE_SPRAYER_DEFAULT      0     // default value for sprayer out of liquid check
+#endif
+
+#ifndef MISSION_SPRAYER_DEFAULT
+ # define MISSION_SPRAYER_DEFAULT      0     // default value for failsafe mission option
+#endif
+

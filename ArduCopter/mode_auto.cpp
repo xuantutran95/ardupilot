@@ -39,7 +39,10 @@ bool ModeAuto::init(bool ignore_checks)
 
         // initialise waypoint and spline controller
         wp_nav->wp_and_spline_init();
-
+		
+		// initialise the sprayer
+		copter.sprayer.run(false);
+		
         // clear guided limits
         copter.mode_guided.limit_clear();
 
@@ -61,6 +64,7 @@ void ModeAuto::run()
 
     case Auto_TakeOff:
         takeoff_run();
+		copter.sprayer.run(false);
         break;
 
     case Auto_WP:
@@ -134,14 +138,15 @@ void ModeAuto::rtl_start()
 
     // call regular rtl flight mode initialisation and ask it to ignore checks
     copter.mode_rtl.init(true);
+	copter.sprayer.run(false);
 }
 
 // auto_takeoff_start - initialises waypoint controller to implement take-off
 void ModeAuto::takeoff_start(const Location& dest_loc)
 {
     _mode = Auto_TakeOff;
-
-    Location dest(dest_loc);
+    copter.sprayer.run(false);
+	Location dest(dest_loc);
 
     if (!copter.current_loc.initialised()) {
         // vehicle doesn't know where it is ATM.  We should not
@@ -1817,6 +1822,7 @@ bool ModeAuto::verify_nav_wp(const AP_Mission::Mission_Command& cmd)
 			AP_Notify::events.waypoint_complete = 1;
 			}
         gcs().send_text(MAV_SEVERITY_INFO, "Reached command #%i",cmd.index);
+		copter.sprayer.run(true);
         return true;
     }
     return false;
